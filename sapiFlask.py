@@ -6,6 +6,8 @@ alldata = {}
 
 @app.route('/', methods=['GET'])
 def get():
+    if len(alldata) == 0:
+        return jsonify({'Message': 'Belum ada data diinputkan'}), 404
     return jsonify(list(alldata.values()))
 
 @app.route('/data', methods=['GET', 'POST'])
@@ -17,6 +19,8 @@ def api():
         g5 = request.args.get('DATE')
 
         key = (g1, g2, g3, g5)
+        if len(alldata) == 0:
+            return jsonify({'Message': 'Belum ada data diinputkan'}), 404
         if key in alldata:
             return jsonify(alldata[key]), 201
         else:
