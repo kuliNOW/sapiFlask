@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from datetime import datetime as dm
 
 app = Flask(__name__)
 
@@ -31,9 +32,9 @@ def api():
         p2 = request.form.get('NPK')
         p3 = request.form.get('LINE')
         p4 = request.form.get('STATUS_JUDGEMENT')
-        p5 = request.form.get('DATE')
-        p6 = request.form.get('CREATED_AT')
-        p7 = request.form.get('UPDATED_AT')
+        p5 = dm.strftime(dm.now(), '%d/%m/%Y')
+        p6 = dm.strftime(dm.now(), '%d/%m/%Y_%H:%M:%S')
+        p7 = dm.strftime(dm.now(), '%d/%m/%Y_%H:%M:%S')
         p8 = request.form.get('STATUS_DEVICE')
         p9 = request.form.get('COUNTER')
         p10 = request.form.get('SPARE')
