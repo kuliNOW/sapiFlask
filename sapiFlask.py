@@ -102,7 +102,7 @@ def get():
     response = lendata(alldata)
     if response:
         return response
-    return jsonify(list(alldata.values()))
+    return jsonify(list(alldata.values())), 200
 
 @app.route('/data', methods=['GET', 'POST'])
 def api():
