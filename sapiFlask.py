@@ -14,6 +14,7 @@ notfound = "Data tidak ditemukan"
 null = "Data tidak boleh kosong"
 success = "Data berhasil ditambahkan"
 notable = "Belum ada data diinputkan"
+duplicate = "Data sudah ada, silahkan inputkan data yang berbeda"
 database = os.path.dirname(os.path.abspath(__file__)) + "\\Traceability.json"
 bath = os.path.dirname(os.path.abspath(__file__)) + f"\\{nameapp[:-2]}bat"
 appPath = os.path.dirname(os.path.abspath(__file__)) + f"\\{nameapp}"
@@ -63,9 +64,22 @@ if os.path.exists(database):
 else:
     createDB(database)
 
-def saveDB(db, data):
-    with open(db, 'w') as f:
-        json.dump(data, f, indent=4)
+def isduplicate(db, key, info):
+    global alldata
+    with open(db, 'r') as f:
+        alldata = json.load(f)
+        for i in alldata.keys():
+            print(i)
+            if key == i:
+                return jsonify({'Message': info}), 400
+            
+def saveDB(db, data, key, info):
+    checkdup = isduplicate(db, str(key), info)
+    if checkdup:
+        return checkdup
+    else:
+        with open(db, 'w') as f:
+            json.dump(data, f, indent=4)
 
 def xssClean(data):
     return bleach.clean(data)
@@ -107,11 +121,11 @@ def get():
 @app.route('/data', methods=['GET', 'POST'])
 def api():
     if request.method == 'GET':
-        get = ['CODE', 'NPK', 'LINE', 'DATE']
-        g1 = request.args.get(get[0])
-        g2 = request.args.get(get[1])
-        g3 = request.args.get(get[2])
-        g5 = request.args.get(get[3])
+        g = ['CODE', 'NPK', 'LINE', 'DATE']
+        g1 = request.args.get(g[0])
+        g2 = request.args.get(g[1])
+        g3 = request.args.get(g[2])
+        g5 = request.args.get(g[3])
         
         endpoint = [g1, g2, g3]
         for i in endpoint:
@@ -142,17 +156,17 @@ def api():
             return jsonify({'Message': notfound}), 404
 
     elif request.method == 'POST':
-        post = ['CODE', 'NPK', 'LINE', 'STATUS_JUDGEMENT', 'DATE', 'CREATED_AT', 'STATUS_DEVICE', 'COUNTER', 'SPARE']
-        p1 = request.form.get(post[0])
-        p2 = request.form.get(post[1])
-        p3 = request.form.get(post[2])
-        p4 = request.form.get(post[3])
-        p5 = request.form.get(post[4])
-        p6 = request.form.get(post[5])
+        p = ['CODE', 'NPK', 'LINE', 'STATUS_JUDGEMENT', 'DATE', 'CREATED_AT', 'STATUS_DEVICE', 'COUNTER', 'SPARE']
+        p1 = request.form.get(p[0])
+        p2 = request.form.get(p[1])
+        p3 = request.form.get(p[2])
+        p4 = request.form.get(p[3])
+        p5 = request.form.get(p[4])
+        p6 = request.form.get(p[5])
         p7 = dm.strftime(dm.now(), '%Y-%m-%d %H:%M:%S')
-        p8 = request.form.get(post[6])
-        p9 = request.form.get(post[7])
-        p10 = request.form.get(post[8])
+        p8 = request.form.get(p[6])
+        p9 = request.form.get(p[7])
+        p10 = request.form.get(p[8])
 
         endpoint = [p1, p2, p3, p4, p8, p9, p10]
         for i in endpoint:
@@ -192,7 +206,9 @@ def api():
         }
 
         alldata[str(key)] = data
-        saveDB(database, alldata)
+        cansave = saveDB(database, alldata, str(key), duplicate)
+        if cansave:
+            return cansave
         return jsonify({'Message': success}), 201
 
 if __name__ == '__main__':
